@@ -5,17 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c1b6e189-5088-4ac5-ab90-f65bf7b12e1f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/1.1.1.1_route_test_positive_Enter_click.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/1.1.1.2_route_test_positive_HledatButton_click.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/1.1.2.1_route_test_time_preset_ByDeparture.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/1.1.2.2_route_test_time_preset_byArrival.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/1.1.3.1_route_test_direct_only_PopUp.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/1.1.3.2_route_test_direct_only_NoPopUp.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Test_Plan_IDOS.cz.bak" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ГлюкиБаги в IDOS.docx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/1.1.1_route_test_positive.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/1.1.2_route_test_time_preset.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test_Plan_IDOS.cz.docx" beforeDir="false" afterPath="$PROJECT_DIR$/Test_Plan_IDOS.cz.docx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/1.1.4.1_route_test_negative_Enter_click.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/1.1.4.2_route_test_negative_HledatButton_click.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/new.py" beforeDir="false" afterPath="$PROJECT_DIR$/new.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/route_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/route_data.py" afterDir="false" />
     </list>

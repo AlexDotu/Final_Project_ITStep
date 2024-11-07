@@ -8,4 +8,5 @@ address_from_2 = 'Ostrava'
 address_to_2 = 'Ústí nad Labem'
 
 invalid_address_from = 'Gulandowa 1237/11'
+invalid_address_to = 'Blzen'
 empty_address = ''
