@@ -5,17 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c1b6e189-5088-4ac5-ab90-f65bf7b12e1f" name="Changes" comment="Created 1.1.4.1 and 1.1.4.2. Updated other files">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/1.1.2.3_route_test_Random_data_from_list.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/1.2.1.1_schedule_test_time_preset.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CzechRepublicLocations.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/1.1.2.4_route_test_Random_data_from_list_exceptions.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/new_1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test_Plan_IDOS.cz.bak" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test_Plan_IDOS.cz.docx" beforeDir="false" afterPath="$PROJECT_DIR$/Test_Plan_IDOS.cz.docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/1.1.2.3_route_test_Random_data_from_list.py" beforeDir="false" afterPath="$PROJECT_DIR$/1.1.2.3_route_test_Random_data_from_list.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/new.py" beforeDir="false" afterPath="$PROJECT_DIR$/new.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -81,7 +75,14 @@
       <option name="project" value="LOCAL" />
       <updated>1731009916298</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Created 1.1.4.1 and 1.1.4.2. Updated other files">
+      <created>1731438628251</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1731438628251</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
