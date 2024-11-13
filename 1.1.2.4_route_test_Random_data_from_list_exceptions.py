@@ -43,6 +43,7 @@ try:
     odkud_input = wait.until(EC.visibility_of_element_located((By.ID, "From")))
     odkud_input.clear()
     odkud_input.send_keys(address_from)
+    time.sleep(0.5)
     odkud_input.send_keys(Keys.ENTER)
     time.sleep(1)
 
@@ -52,7 +53,7 @@ try:
         )
         if suggestion_list:
             first_suggestion = suggestion_list.find_element(By.CSS_SELECTOR, ".idos-autosuggest__suggestion")
-
+            time.sleep(0.5)
             first_suggestion.click()
             print(
                 f"For \"{address_from}\" address clarification needed ! Selected the first suggestion from dropdown list.")
@@ -64,7 +65,9 @@ try:
     kam_input = wait.until(EC.visibility_of_element_located((By.ID, "To")))
     kam_input.clear()
     kam_input.send_keys(address_to)
+    time.sleep(1)
     kam_input.send_keys(Keys.ARROW_DOWN)
+    time.sleep(0.5)
     kam_input.send_keys(Keys.ARROW_DOWN)
     kam_input.send_keys(Keys.ENTER)
 
@@ -90,7 +93,6 @@ try:
 
     driver.execute_script("arguments[0].value = arguments[1];", date_input, random_date)
     driver.execute_script("arguments[0].value = arguments[1];", time_input, random_time)
-    time.sleep(0.5)
 
     date_input.send_keys(Keys.ESCAPE)
     date_input.send_keys(Keys.TAB)
