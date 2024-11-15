@@ -1,4 +1,5 @@
 import random
+import sys
 import time
 from datetime import datetime, timedelta
 
@@ -10,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
+sys.path.append('/Users/Alex/ITStepAcademy/Final_Project/Test_Scripts_python/Supporting_files')
 import route_data
 
 options = webdriver.ChromeOptions()
@@ -33,35 +35,18 @@ try:
     try:
         cookie_button = wait.until(EC.element_to_be_clickable((By.ID, "didomi-notice-agree-button")))
         cookie_button.click()
+
     except Exception as e:
         print("Cookie consent button not found or not clickable:", e)
 
     odkud_input = wait.until(EC.visibility_of_element_located((By.ID, "From")))
     odkud_input.clear()
-    odkud_input.send_keys(route_data.invalid_address_from)
-
-    odkud_input_error_message = driver.find_elements(By.XPATH, "//*[contains(@class,'label-error')]")
-    if odkud_input_error_message:
-        print("Invalid or nonexistent departure address! TEST PASSED - system doesn't accept invalid 'From' addresses.")
-        odkud_input.send_keys(Keys.TAB)
-
-    time.sleep(1)
+    odkud_input.send_keys(route_data.address_from_1)
     odkud_input.send_keys(Keys.TAB)
 
     kam_input = wait.until(EC.visibility_of_element_located((By.ID, "To")))
     kam_input.clear()
-    kam_input.send_keys(route_data.invalid_address_to)
-
-    kam_input_error_message = driver.find_elements(By.XPATH,
-                                                   "//*[contains(@class, 'label-error') and contains(text(), 'Takové místo neznáme.')]")
-    if kam_input_error_message:
-        print("Invalid or nonexistent destination address! TEST PASSED - system doesn't accept invalid 'To' addresses.")
-        driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",
-                              kam_input)
-        time.sleep(1)
-        driver.quit()
-        exit()
-
+    kam_input.send_keys(route_data.address_to_1)
     kam_input.send_keys(Keys.TAB)
 
     random_date, random_time = random_datetime_generator()
@@ -97,7 +82,7 @@ try:
 
     connections = route_results.find_elements(By.CLASS_NAME, "connection")
     if connections:
-        print("Test passed! Routes found successfully.")
+        print("Routes found successfully.")
     else:
         print("No routes found.")
 

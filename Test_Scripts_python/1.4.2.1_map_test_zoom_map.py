@@ -2,6 +2,7 @@ import random
 import time
 from datetime import datetime, timedelta
 
+import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -10,8 +11,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-import route_data
-
 options = webdriver.ChromeOptions()
 options.add_argument("--disable-blink-features=AutomationControlled")
 options.add_argument("--start-maximized")
@@ -19,6 +18,8 @@ options.add_argument("--start-maximized")
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 wait = WebDriverWait(driver, 20)
 
+excel_path = "./Supporting_files/CzechRepublicLocations.xls"
+locations_df = pd.read_excel(excel_path)
 
 def random_datetime_generator():
     random_date = datetime.now() + timedelta(days=random.randint(1, 7))
@@ -33,18 +34,21 @@ try:
     try:
         cookie_button = wait.until(EC.element_to_be_clickable((By.ID, "didomi-notice-agree-button")))
         cookie_button.click()
-        print("Cookie consent button clicked.")
+
     except Exception as e:
         print("Cookie consent button not found or not clickable:", e)
 
+    address_from = locations_df["Locality"].sample(1).values[0]
+    address_to = locations_df["Locality"].sample(1).values[0]
+
     odkud_input = wait.until(EC.visibility_of_element_located((By.ID, "From")))
     odkud_input.clear()
-    odkud_input.send_keys(route_data.address_from_2)
+    odkud_input.send_keys(address_from)
     odkud_input.send_keys(Keys.TAB)
 
     kam_input = wait.until(EC.visibility_of_element_located((By.ID, "To")))
     kam_input.clear()
-    kam_input.send_keys(route_data.address_to_2)
+    kam_input.send_keys(address_to)
     kam_input.send_keys(Keys.TAB)
 
     random_date, random_time = random_datetime_generator()
@@ -64,8 +68,8 @@ try:
     time_input.send_keys(Keys.TAB)
     time.sleep(0.5)
 
-    prjezd_radio = driver.find_element(By.XPATH, "//label[text()[normalize-space(.)='Příjezd']]")
-    prjezd_radio.click()
+    odjezd_radioBox = driver.find_element(By.ID, "byArrival-departure")
+    odjezd_radioBox.send_keys(Keys.TAB)
     time.sleep(1)
 
     hledat_button = wait.until(EC.element_to_be_clickable(
@@ -75,14 +79,50 @@ try:
     driver.execute_script("arguments[0].click();", hledat_button)
 
     route_results = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "connection-list")))
-    driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", route_results)
-    time.sleep(1.5)
-
     connections = route_results.find_elements(By.CLASS_NAME, "connection")
+
     if connections:
-        print("Routes found successfully.")
-    else:
-        print("No routes found.")
+        print(f"Found {len(connections)} routes. Processing each route...")
+
+        for index, connection in enumerate(connections):
+
+            try:
+                # Найти и кликнуть на иконку карты
+                map_icon = connection.find_element(By.CSS_SELECTOR, ".ico-map")
+                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", map_icon)
+                time.sleep(1)
+                map_icon.click()
+                print(f"Opened map for route {index + 1}.")
+
+                # Подождать загрузку карты
+                time.sleep(2)
+
+                # Zoom In (Приближение)
+                for _ in range(3):  # Количество шагов увеличения
+                    driver.execute_script(
+                        "document.querySelector('.leaflet-container').dispatchEvent(new WheelEvent('wheel', {deltaY: -100}));")
+                    time.sleep(0.5)
+
+                print("Zoomed in.")
+
+                # Zoom Out (Отдаление)
+                for _ in range(3):  # Количество шагов уменьшения
+                    driver.execute_script(
+                        "document.querySelector('.leaflet-container').dispatchEvent(new WheelEvent('wheel', {deltaY: 100}));")
+                    time.sleep(0.5)
+
+                print("Zoomed out.")
+
+                # Найти и кликнуть на кнопку закрытия карты
+                close_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".popup-close.popup-close-map")))
+                time.sleep(1.5)
+                close_button.click()
+                print(f"Closed map for route {index + 1}.")
+                time.sleep(1)
+
+            except Exception as e:
+                print(f"Failed to process map for route {index + 1}: {e}")
+
 
 except Exception as e:
     print(f"Test failed due to exception: {e}")

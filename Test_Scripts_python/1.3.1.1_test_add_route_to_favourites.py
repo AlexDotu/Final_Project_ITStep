@@ -88,6 +88,9 @@ try:
     else:
         print("No routes found.")
 
+    moji_spojeni = driver.find_element(By.XPATH, "//*[contains(@class,'ico-mc')][contains(@class,'my-connection')]")
+    moji_spojeni.click()
+
 except Exception as e:
     print(f"Test failed due to exception: {e}")
 
