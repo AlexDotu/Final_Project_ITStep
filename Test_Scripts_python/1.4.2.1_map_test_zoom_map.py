@@ -21,6 +21,7 @@ wait = WebDriverWait(driver, 20)
 excel_path = "./Supporting_files/CzechRepublicLocations.xls"
 locations_df = pd.read_excel(excel_path)
 
+
 def random_datetime_generator():
     random_date = datetime.now() + timedelta(days=random.randint(1, 7))
     format_date = random_date.strftime("%d.%m.%Y")
@@ -87,33 +88,29 @@ try:
         for index, connection in enumerate(connections):
 
             try:
-                # Найти и кликнуть на иконку карты
+
                 map_icon = connection.find_element(By.CSS_SELECTOR, ".ico-map")
                 driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", map_icon)
                 time.sleep(1)
                 map_icon.click()
                 print(f"Opened map for route {index + 1}.")
 
-                # Подождать загрузку карты
                 time.sleep(2)
 
-                # Zoom In (Приближение)
-                for _ in range(3):  # Количество шагов увеличения
+                for _ in range(3):
                     driver.execute_script(
                         "document.querySelector('.leaflet-container').dispatchEvent(new WheelEvent('wheel', {deltaY: -100}));")
                     time.sleep(0.5)
 
                 print("Zoomed in.")
 
-                # Zoom Out (Отдаление)
-                for _ in range(3):  # Количество шагов уменьшения
+                for _ in range(3):
                     driver.execute_script(
                         "document.querySelector('.leaflet-container').dispatchEvent(new WheelEvent('wheel', {deltaY: 100}));")
                     time.sleep(0.5)
 
                 print("Zoomed out.")
 
-                # Найти и кликнуть на кнопку закрытия карты
                 close_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".popup-close.popup-close-map")))
                 time.sleep(1.5)
                 close_button.click()
