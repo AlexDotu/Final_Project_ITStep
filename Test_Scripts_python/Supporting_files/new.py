@@ -18,8 +18,9 @@ options.add_argument("--start-maximized")
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 wait = WebDriverWait(driver, 20)
 
-excel_path = "CzechRepublicLocations.xls"
+excel_path = "CzechRepublicLocations.xlsx"
 locations_df = pd.read_excel(excel_path)
+
 
 def random_datetime_generator():
     random_date = datetime.now() + timedelta(days=random.randint(1, 7))
@@ -84,26 +85,60 @@ try:
     if connections:
         print(f"Found {len(connections)} routes. Processing each route...")
 
-        for index, connection in enumerate(connections):
+        # for index, connection in enumerate(connections):
+        #     try:
+        #         map_icon = connection.find_element(By.CSS_SELECTOR, ".ico-map")
+        #         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", map_icon)
+        #         time.sleep(1)
+        #         map_icon.click()
+        #         print(f"Opened map for route {index + 1}.")
+        #
+        #         time.sleep(2)
+        #
+        #         for _ in range(3):
+        #             driver.execute_script(
+        #                 "document.querySelector('.leaflet-container').dispatchEvent(new WheelEvent('wheel', {deltaY: -100}));")
+        #             time.sleep(0.5)
+        #
+        #         print("Zoomed in.")
+        #
+        #         for _ in range(3):
+        #             driver.execute_script(
+        #                 "document.querySelector('.leaflet-container').dispatchEvent(new WheelEvent('wheel', {deltaY: 100}));")
+        #             time.sleep(0.5)
+        #
+        #         print("Zoomed out.")
 
-            try:
-                map_icon = connection.find_element(By.CSS_SELECTOR, ".ico-map")
-                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", map_icon)
-                time.sleep(1)
-                map_icon.click()
-                print(f"Opened map for route {index + 1}.")
+                # Обработка остановок
+        try:
+            stop_markers = driver.find_elements(By.CSS_SELECTOR, ".leaflet-marker-pane .leaflet-marker-icon")
+            if stop_markers:
+                print(f"Found {len(stop_markers)} stops. Hovering over each stop...")
+                for stop_index, marker in enumerate(stop_markers):
+                    try:
+                        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", marker)
+                        webdriver.ActionChains(driver).move_to_element(marker).perform()
+                        time.sleep(1)
+                        tooltip = wait.until(EC.visibility_of_element_located(
+                            (By.CSS_SELECTOR, ".leaflet-pane .leaflet-tooltip")))
+                        print(f"Stop {stop_index + 1}: {tooltip.text}")
+                    except Exception as e:
+                        print(f"Failed to hover over stop {stop_index + 1}: {e}")
+            else:
+                print("No stops found on the map.")
+        except Exception as e:
+            print(f"Error processing stops: {e}")
 
-                close_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".popup-close.popup-close-map")))
-                time.sleep(1.5)
-                close_button.click()
-                print(f"Closed map for route {index + 1}.")
-                time.sleep(1)
+        close_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".popup-close.popup-close-map")))
+        time.sleep(1.5)
+        close_button.click()
+        print(f"Closed map for route {index + 1}.")
+        time.sleep(1)
 
-            except Exception as e:
-                print(f"Failed to process map for route {index + 1}: {e}")
+        # except Exception as e:
+        #     print(f"Failed to process map for route {index + 1}: {e}")
 
-    else:
-        print("No routes found.")
+
 
 except Exception as e:
     print(f"Test failed due to exception: {e}")

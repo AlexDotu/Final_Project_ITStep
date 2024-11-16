@@ -11,7 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-excel_path = "./Supporting_files/CzechRepublicLocations.xls"
+excel_path = "Supporting_files/CzechRepublicLocations.xlsx"
 locations_df = pd.read_excel(excel_path)
 
 

@@ -18,7 +18,7 @@ options.add_argument("--start-maximized")
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 wait = WebDriverWait(driver, 20)
 
-excel_path = "CzechRepublicLocations.xls"
+excel_path = "CzechRepublicLocations.xlsx"
 locations_df = pd.read_excel(excel_path)
 
 def random_datetime_generator():
