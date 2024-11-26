@@ -18,16 +18,18 @@ options.add_argument("--start-maximized")
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 wait = WebDriverWait(driver, 20)
 
+# Тут указан путь к файлу с населенными пунктами Чехии
 excel_path = "Supporting_files/CzechRepublicLocations.xlsx"
 locations_df = pd.read_excel(excel_path)
 
+# Создаем функцию случайного подбора даты и времени
 def random_datetime_generator():
     random_date = datetime.now() + timedelta(days=random.randint(1, 7))
     format_date = random_date.strftime("%d.%m.%Y")
     random_time = f"{random.randint(0, 23):02}:{random.randint(0, 59):02}"
     return format_date, random_time
 
-
+# Обрабатываем кукис
 try:
     driver.get("https://www.idos.cz/")
 

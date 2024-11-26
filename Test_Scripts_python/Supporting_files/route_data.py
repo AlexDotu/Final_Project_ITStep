@@ -14,3 +14,6 @@ address_to_3 = 'Brno'
 invalid_address_from = 'Gulandowa 1237/11'
 invalid_address_to = 'Blzen'
 empty_address = ''
+
+login = 'alexandrudotu@gmail.com'
+password = 'IdosAlex'

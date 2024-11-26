@@ -11,134 +11,152 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-options = webdriver.ChromeOptions()
-options.add_argument("--disable-blink-features=AutomationControlled")
-options.add_argument("--start-maximized")
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-wait = WebDriverWait(driver, 20)
-
-excel_path = "CzechRepublicLocations.xlsx"
-locations_df = pd.read_excel(excel_path)
+def random_letters():
+    """Генерация случайных двух букв английского алфавита."""
+    return ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for _ in range(2))
 
 
 def random_datetime_generator():
+    """Генерация случайной даты и времени в пределах 7 дней."""
     random_date = datetime.now() + timedelta(days=random.randint(1, 7))
     format_date = random_date.strftime("%d.%m.%Y")
     random_time = f"{random.randint(0, 23):02}:{random.randint(0, 59):02}"
     return format_date, random_time
 
 
+def handle_error_and_retry():
+    """Проверяет появление ошибки 'Spojení nebylo nalezeno' и закрывает её, если обнаружена."""
+    try:
+        # Ожидание появления окна ошибки
+        error_modal = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".popup-in.idos-modal__content--560")))
+        print("Error modal detected: No connection found.")
+
+        # Нажатие кнопки 'Zavřít'
+        close_button = error_modal.find_element(By.CSS_SELECTOR, "button.swal-button--cancel")
+        close_button.click()
+        print("Error modal closed. Retrying...")
+
+        # Небольшая пауза перед повторной попыткой
+        time.sleep(1)
+        return True
+    except Exception as e:
+        print(f"No error modal detected or failed to handle it: {e}")
+        return False
+
+
+options = webdriver.ChromeOptions()
+options.add_argument("--disable-blink-features=AutomationControlled")
+options.add_argument("--start-maximized")
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+wait = WebDriverWait(driver, 5)
+
 try:
     driver.get("https://www.idos.cz/")
 
+    # Принятие cookies
     try:
         cookie_button = wait.until(EC.element_to_be_clickable((By.ID, "didomi-notice-agree-button")))
         cookie_button.click()
-
     except Exception as e:
         print("Cookie consent button not found or not clickable:", e)
 
-    address_from = locations_df["Locality"].sample(1).values[0]
-    address_to = locations_df["Locality"].sample(1).values[0]
+    def fill_field_with_random_letters(field_id, field_name):
+        """Заполнение поля Odkud/Kam случайными буквами и выбор из выпадающего списка."""
+        while True:
+            # Генерация случайных двух букв
+            random_text = random_letters()
+            input_field = wait.until(EC.visibility_of_element_located((By.ID, field_id)))
+            input_field.clear()
+            input_field.send_keys(random_text)
+            time.sleep(1)  # Ожидание появления выпадающего списка
 
-    odkud_input = wait.until(EC.visibility_of_element_located((By.ID, "From")))
-    odkud_input.clear()
-    odkud_input.send_keys(address_from)
-    odkud_input.send_keys(Keys.TAB)
+            try:
+                # Проверяем, есть ли выпадающий список
+                suggestion_list_odkud = wait.until(
+                    EC.visibility_of_element_located((By.CSS_SELECTOR, ".idos-autosuggest__suggestions-container"))
+                )
+                suggestions_odkud = suggestion_list_odkud.find_elements(By.CSS_SELECTOR, ".idos-autosuggest__suggestion")
+                if suggestions_odkud:
+                    # Выбираем случайный вариант из списка
+                    random.choice(suggestions_odkud).click()
+                    print(f"Randomly selected suggestion for '{field_name}' with text '{random_text}'.")
+                    return
+            except Exception:
+                pass
 
-    kam_input = wait.until(EC.visibility_of_element_located((By.ID, "To")))
-    kam_input.clear()
-    kam_input.send_keys(address_to)
-    kam_input.send_keys(Keys.TAB)
+            # Проверяем наличие ошибки "Takové místo neznáme"
+            try:
+                error_message_odkud = driver.find_element(By.CSS_SELECTOR, ".label-error")
+                if "Takové místo neznáme" in error_message_odkud.text:
+                    print(f"'{random_text}' not recognized for '{field_name}'. Retrying...")
+                    continue
+            except Exception:
+                pass
 
-    random_date, random_time = random_datetime_generator()
-    print(f"Generated random date: {random_date}, time: {random_time}")
+    def fill_kam_field_via_keyboard_with_retry(field_id, field_name):
+        """Заполняет поле 'Kam' двумя случайными буквами и выбирает первый элемент через клавиши стрелки и Enter."""
+        while True:
+            random_text = random_letters()
+            input_field = wait.until(EC.visibility_of_element_located((By.ID, field_id)))
+            input_field.clear()
+            input_field.send_keys(random_text)
+            time.sleep(0.5)  # Небольшая пауза для завершения обработки ввода
 
-    date_input = wait.until(EC.presence_of_element_located((By.ID, "Date")))
-    time_input = wait.until(EC.presence_of_element_located((By.ID, "Time")))
+            try:
+                # Симулируем выбор первого элемента в выпадающем списке
+                input_field.send_keys(Keys.ARROW_DOWN)
+                time.sleep(0.5)  # Ожидание для надежности
+                input_field.send_keys(Keys.ENTER)
+                print(f"Input for '{field_name}': '{random_text}' - ARROW_DOWN and ENTER keys used.")
+                return
+            except Exception as e:
+                print(f"Error while selecting from '{field_name}' with text '{random_text}': {e}")
 
-    driver.execute_script("arguments[0].value = arguments[1];", date_input, random_date)
-    driver.execute_script("arguments[0].value = arguments[1];", time_input, random_time)
-    time.sleep(1)
 
-    date_input.send_keys(Keys.ESCAPE)
-    time.sleep(0.5)
+    while True:
+        # Заполняем поля Odkud и Kam
+        fill_field_with_random_letters("From", "Odkud")
+        fill_kam_field_via_keyboard_with_retry("To", "Kam")
 
-    date_input.send_keys(Keys.TAB)
-    time_input.send_keys(Keys.TAB)
-    time.sleep(0.5)
+        # Генерация случайной даты и времени
+        random_date, random_time = random_datetime_generator()
+        print(f"Generated random date: {random_date}, time: {random_time}")
 
-    odjezd_radioBox = driver.find_element(By.ID, "byArrival-departure")
-    odjezd_radioBox.send_keys(Keys.TAB)
-    time.sleep(1)
+        # Ввод даты и времени
+        date_input = wait.until(EC.presence_of_element_located((By.ID, "Date")))
+        time_input = wait.until(EC.presence_of_element_located((By.ID, "Time")))
 
-    hledat_button = wait.until(EC.element_to_be_clickable(
-        (By.XPATH, "//button[contains(@class, 'btn btn-orange btn-small btn-shadow w-full')]")))
-    driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", hledat_button)
-    time.sleep(1)
-    driver.execute_script("arguments[0].click();", hledat_button)
+        driver.execute_script("arguments[0].value = arguments[1];", date_input, random_date)
+        driver.execute_script("arguments[0].value = arguments[1];", time_input, random_time)
 
-    route_results = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "connection-list")))
-    connections = route_results.find_elements(By.CLASS_NAME, "connection")
+        date_input.send_keys(Keys.ESCAPE)
+        date_input.send_keys(Keys.TAB)
+        time_input.send_keys(Keys.TAB)
 
-    if connections:
-        print(f"Found {len(connections)} routes. Processing each route...")
-
-        # for index, connection in enumerate(connections):
-        #     try:
-        #         map_icon = connection.find_element(By.CSS_SELECTOR, ".ico-map")
-        #         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", map_icon)
-        #         time.sleep(1)
-        #         map_icon.click()
-        #         print(f"Opened map for route {index + 1}.")
-        #
-        #         time.sleep(2)
-        #
-        #         for _ in range(3):
-        #             driver.execute_script(
-        #                 "document.querySelector('.leaflet-container').dispatchEvent(new WheelEvent('wheel', {deltaY: -100}));")
-        #             time.sleep(0.5)
-        #
-        #         print("Zoomed in.")
-        #
-        #         for _ in range(3):
-        #             driver.execute_script(
-        #                 "document.querySelector('.leaflet-container').dispatchEvent(new WheelEvent('wheel', {deltaY: 100}));")
-        #             time.sleep(0.5)
-        #
-        #         print("Zoomed out.")
-
-                # Обработка остановок
-        try:
-            stop_markers = driver.find_elements(By.CSS_SELECTOR, ".leaflet-marker-pane .leaflet-marker-icon")
-            if stop_markers:
-                print(f"Found {len(stop_markers)} stops. Hovering over each stop...")
-                for stop_index, marker in enumerate(stop_markers):
-                    try:
-                        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", marker)
-                        webdriver.ActionChains(driver).move_to_element(marker).perform()
-                        time.sleep(1)
-                        tooltip = wait.until(EC.visibility_of_element_located(
-                            (By.CSS_SELECTOR, ".leaflet-pane .leaflet-tooltip")))
-                        print(f"Stop {stop_index + 1}: {tooltip.text}")
-                    except Exception as e:
-                        print(f"Failed to hover over stop {stop_index + 1}: {e}")
-            else:
-                print("No stops found on the map.")
-        except Exception as e:
-            print(f"Error processing stops: {e}")
-
-        close_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".popup-close.popup-close-map")))
-        time.sleep(1.5)
-        close_button.click()
-        print(f"Closed map for route {index + 1}.")
+        # Нажимаем кнопку "Hledat"
+        hledat_button = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class, 'btn btn-orange btn-small btn-shadow w-full')]")))
+        driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", hledat_button)
         time.sleep(1)
+        driver.execute_script("arguments[0].click();", hledat_button)
 
-        # except Exception as e:
-        #     print(f"Failed to process map for route {index + 1}: {e}")
+        # Обрабатываем результаты маршрутов
+        try:
+            route_results = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "connection-list")))
+            driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", route_results)
+            time.sleep(1)
 
-
+            connections = route_results.find_elements(By.CLASS_NAME, "connection")
+            if connections:
+                print("Routes found successfully.")
+                break  # Успешно завершить цикл
+            else:
+                print("No routes found.")
+        except Exception:
+            print("No routes found, retrying...")
+            if not handle_error_and_retry():
+                break  # Если ошибка не обработана, выходим из цикла
 
 except Exception as e:
     print(f"Test failed due to exception: {e}")

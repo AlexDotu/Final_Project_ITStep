@@ -18,7 +18,7 @@ options.add_argument("--start-maximized")
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 wait = WebDriverWait(driver, 20)
 
-excel_path = "CzechRepublicLocations.xlsx"
+excel_path = "Supporting_files/CzechRepublicLocations.xlsx"
 locations_df = pd.read_excel(excel_path)
 
 def random_datetime_generator():
@@ -88,7 +88,7 @@ try:
     else:
         print("No routes found.")
 
-    moji_spojeni = driver.find_element(By.XPATH, "//*[contains(@class,'ico-mc')][contains(@class,'my-connection')]")
+    moji_spojeni = driver.find_element(By.XPATH, "//*[contains(@class,'ico-mc')][contains(@title,'Přidat do Mých spojení')]")
     moji_spojeni.click()
 
 except Exception as e:
