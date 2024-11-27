@@ -15,5 +15,6 @@ invalid_address_from = 'Gulandowa 1237/11'
 invalid_address_to = 'Blzen'
 empty_address = ''
 
-login = 'alexandrudotu@gmail.com'
-password = 'IdosAlex'
+valid_login = 'alexandrudotu@gmail.com'
+valid_email = 'alexandrudotu@gmail.com'
+valid_password = 'IdosAlex'

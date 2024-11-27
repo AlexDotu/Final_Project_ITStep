@@ -142,8 +142,11 @@ def search_routes():
     # Проверяем наличие маршрутов
     try:
         route_results = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "connection-list")))
-        connections = route_results.find_elements(By.CLASS_NAME, "connection")
-        if connections:
+        driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", route_results)
+        time.sleep(1)
+        
+        spojeni_list = route_results.find_elements(By.CLASS_NAME, "connection")
+        if spojeni_list:
             print("Routes found successfully.")
         else:
             print("No routes found.")

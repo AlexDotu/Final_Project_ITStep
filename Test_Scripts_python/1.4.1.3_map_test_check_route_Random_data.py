@@ -78,13 +78,13 @@ try:
     time.sleep(1)
     driver.execute_script("arguments[0].click();", hledat_button)
 
-    route_results = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "connection-list")))
-    connections = route_results.find_elements(By.CLASS_NAME, "connection")
+    spojeni_results = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "connection-list")))
+    spojeni_list = spojeni_results.find_elements(By.CLASS_NAME, "connection")
 
-    if connections:
-        print(f"Found {len(connections)} routes. Processing each route...")
+    if spojeni_list:
+        print(f"Found {len(spojeni_list)} routes. Processing each route...")
 
-        for index, connection in enumerate(connections):
+        for index, connection in enumerate(spojeni_list):
 
             try:
                 map_icon = connection.find_element(By.CSS_SELECTOR, ".ico-map")

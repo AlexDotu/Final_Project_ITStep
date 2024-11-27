@@ -56,12 +56,12 @@ try:
 
     kam_input.send_keys(Keys.ENTER)
 
-    route_results = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "connection-list")))
-    driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", route_results)
+    spojeni_results = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "connection-list")))
+    driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", spojeni_results)
     time.sleep(1)
 
-    connections = route_results.find_elements(By.CLASS_NAME, "connection")
-    if connections:
+    spojeni_list = spojeni_results.find_elements(By.CLASS_NAME, "connection")
+    if spojeni_list:
         print("Routes found successfully.")
     else:
         print("No routes found.")
