@@ -10,6 +10,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
+from Supporting_files import All_Warnings_and_Errors_Avoid
+from Test_Scripts_python.Supporting_files.All_Warnings_and_Errors_Avoid import warnings_and_notifications_clear
 
 options = webdriver.ChromeOptions()
 options.add_argument("--disable-blink-features=AutomationControlled")
@@ -38,6 +40,8 @@ try:
 
     except Exception as e:
         print("Cookie consent button not found or not clickable:", e)
+
+    warnings_and_notifications_clear()
 
     address_from = locations_df["Locality"].sample(1).values[0]
     address_to = locations_df["Locality"].sample(1).values[0]
@@ -79,11 +83,15 @@ try:
     time.sleep(1)
     driver.execute_script("arguments[0].click();", hledat_button)
 
+
+
     spojeni_results = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "connection-list")))
     spojeni_list = spojeni_results.find_elements(By.CLASS_NAME, "connection")
 
     if spojeni_list:
         print(f"Found {len(spojeni_list)} routes. Processing each route...")
+
+        warnings_and_notifications_clear()
 
         for index, connection in enumerate(spojeni_list):
 

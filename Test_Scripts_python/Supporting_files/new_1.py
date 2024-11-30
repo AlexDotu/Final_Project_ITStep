@@ -3,17 +3,15 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
 # Импорт корректных логина и пароля из файла route_data.py
 import sys
-import os
 
 sys.path.append('/Users/Alex/ITStepAcademy/Final_Project/Test_Scripts_python/Supporting_files')
-from route_data import valid_email, valid_password
+from Test_Scripts_python.Supporting_files.route_data import valid_email, valid_password
 
 options = webdriver.ChromeOptions()
 options.add_argument("--disable-blink-features=AutomationControlled")
@@ -31,6 +29,7 @@ try:
         print("Accepted cookies")
     except Exception as e:
         print("Cookie consent button not found or not clickable")
+
 
     def random_email():
         """Генерирует случайный e-mail с некорректным форматом."""
@@ -57,7 +56,7 @@ try:
 
 
     def login_test(email, password):
-        """Ввод логина, пароля и обработка всех ошибок."""
+        """Ввод логина, пароля и проверка успешного входа."""
         email_input = wait.until(EC.visibility_of_element_located((By.ID, "Email")))
         password_input = wait.until(EC.visibility_of_element_located((By.ID, "Password")))
 
@@ -68,67 +67,55 @@ try:
         password_input.send_keys(password)
 
         # Нажимаем иконку глаза для отображения пароля
-        try:
-            eye_icon = driver.find_element(By.CSS_SELECTOR, "i.fa-regular.eye-ico")
-            eye_icon.click()
-            print("Password is now visible.")
-        except Exception as e:
-            print("Eye icon for password visibility not found:", e)
+        for attempt in range(3):  # Делаем 3 попытки клика на иконку
+            try:
+                eye_icon = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "i.fa-regular.eye-ico")))
+                eye_icon.click()
+                print("Password is now visible.")
+                break  # Если клик успешен, выходим из цикла
+            except Exception as e:
+                print(f"Attempt {attempt + 1}: Eye icon for password visibility not clickable. Retrying...")
+                time.sleep(0.5)  # Небольшая задержка перед повторной попыткой
+        else:
+            print("Failed to make password visible after multiple attempts.")
 
         # Нажимаем кнопку "Přihlásit se"
-        login_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[@class='btn btn-orange btn-small btn-shadow w-full']")))
+        login_button = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[@class='btn btn-orange btn-small btn-shadow w-full']")))
         login_button.click()
 
-        # Обработка ошибок
-        time.sleep(1)  # Короткая задержка на появление сообщений об ошибке
-        if check_label_error(".label-error"):
-            print("Detected error in input fields. Retrying...")
-            return False
+        # Ждём успешного входа или ошибки
+        try:
+            # Проверяем наличие имени пользователя после успешного входа
+            user_button = wait.until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "a.btn.btn-lightblue.btn-shadow.btn-link.userName"))
+            )
+            print(f"Login successful. User button found: {user_button.text}")
+            return True
+        except Exception:
+            print("User button not found. Login might have failed.")
 
-        # Проверка на ошибку: Chybně zadaný e-mail nebo heslo.
+        # Проверка на ошибку "Chybně zadaný e-mail nebo heslo."
         try:
             login_error = driver.find_element(By.XPATH, "//span[contains(text(), 'Chybně zadaný e-mail nebo heslo.')]")
             if login_error.is_displayed():
                 print("Login failed: Incorrect email or password.")
                 return False
         except Exception:
-            pass  # Ошибка не найдена
+            print("No specific login error message found.")
 
-        return True
-
-
-    def post_login_actions():
-        """Действия после успешного входа."""
-        # try:
-        #     # Ждём, пока кнопка с именем пользователя станет кликабельной
-        #     user_button = wait.until(
-        #         EC.element_to_be_clickable((By.XPATH, "//a[contains(@class, 'btn-lightblue') and @title='Účet']"))
-        #     )
-        #     if user_button.value_of_css_property("opacity") == "0":
-        #         print("Button is not visible yet (opacity=0). Waiting for visibility...")
-        #         time.sleep(1)  # Задержка перед повторной проверкой
-        #     user_button.click()
-        #     print("Clicked on user account button.")
-        # except Exception as e:
-        #     print("User account button not found or not clickable:", e)
-        #     return  # Завершаем выполнение, если кнопка не найдена
-
-        # Пролистать страницу вниз
-        try:
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            print("Scrolled to the bottom of the page.")
-            time.sleep(2)  # Задержка для загрузки содержимого
-        except Exception as e:
-            print("Error while scrolling:", e)
+        print("Login status unknown. Assuming failure.")
+        return False
 
 
     try:
         # Переход на сайт и нажатие кнопки "Přihlásit"
         driver.get("https://idos.cz")
-        login_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[contains(@class, 'btn-lightblue') and contains(@title, 'Přihlásit')]")))
+        login_button = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//a[contains(@class, 'btn-lightblue') and contains(@title, 'Přihlásit')]")))
         login_button.click()
 
-        # Негативные сценарии: 3 попытки с неправильными данными
+        # Негативные сценарии: 2 попытки с неправильными данными
         for attempt in range(3):
             print(f"Attempt {attempt + 1} with random incorrect credentials.")
             random_email_address = random_email()
@@ -142,15 +129,11 @@ try:
         print("Attempting login with valid credentials.")
         if login_test(valid_email, valid_password):
             print("Login successful with valid credentials.")
-            post_login_actions()
+            # Здесь можно вызвать другие действия после входа
         else:
             print("Failed to login with valid credentials. Exiting test.")
     except Exception as e:
         print(f"Test failed due to exception: {e}")
-
-except Exception as e:
-    print(f"Test failed due to exception: {e}")
-
 finally:
     # Завершение теста
     driver.quit()

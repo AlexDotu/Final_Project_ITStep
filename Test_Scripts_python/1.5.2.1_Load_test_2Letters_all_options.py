@@ -101,7 +101,7 @@ def fill_kam_field_via_keyboard(field_id, field_name):
             print(f"Error while selecting from '{field_name}' with text '{random_text}': {e}")
 
 
-def search_spojeni():    # Основная функция поиска для маршрутов
+def search_spojeni():  # Основная функция поиска для маршрутов
     fill_field_with_random_letters("From", "Odkud")
     fill_kam_field_via_keyboard("To", "Kam")
 
@@ -129,10 +129,19 @@ def search_spojeni():    # Основная функция поиска для �
             EC.presence_of_element_located((By.CSS_SELECTOR, ".popup-in.idos-modal__content--560")))
         close_button = NoRoutesFound_ModalWindow.find_element(By.CSS_SELECTOR, "button.swal-button--cancel")
 
+        popUp_window = driver.find_elements(By.CLASS_NAME, "popup-in")
+
         if NoRoutesFound_ModalWindow:
             close_button.click()
             print("Error modal detected and closed. Retrying search...")
             clear_fields()  # Очищаем поля и запускаем повторный поиск
+            search_spojeni()
+            return
+        elif popUp_window:
+            close_button = popUp_window[0].find_element(By.XPATH, ".//button[@class='swal-button swal-button--cancel']")
+            print("No direct routes available. Closing popup and suggesting to adjust the route points...")
+            close_button.click()
+            # time.sleep(1)
             search_spojeni()
             return
     except Exception:
@@ -143,7 +152,7 @@ def search_spojeni():    # Основная функция поиска для �
         spojeni_results = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "connection-list")))
         driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", spojeni_results)
         time.sleep(1)
-        
+
         spojeni_list = spojeni_results.find_elements(By.CLASS_NAME, "connection")
         if spojeni_list:
             print("Routes found successfully.")
@@ -151,6 +160,7 @@ def search_spojeni():    # Основная функция поиска для �
             print("No routes found.")
     except Exception as e:
         print(f"Error while checking routes: {e}")
+
 
 try:
     driver.get("https://www.idos.cz/")
