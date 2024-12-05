@@ -132,17 +132,23 @@ def warnings_and_notifications_clear(driver):
         pass
         return False
 
-    # Проверяет наличие ошибки 'Takové místo neznáme'
+ # Проверяет наличие ошибки 'Takové místo neznáme' Проверяет наличие ошибок с классом 'label-error' и обрабатывает их. Возвращает True, если ошибка обнаружена и обработана, иначе False.
+
     try:
-        error_message = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".label-error")))
-        if "Takové místo neznáme" in error_message.text:
-            odkud_input.send_keys(Keys.ARROW_DOWN)
-            kam_input.send_keys(Keys.ARROW_DOWN)
-            print("Detected error: 'Takové místo neznáme'. Retrying...")
-            return True
-    except Exception:
-        # Если ошибка отсутствует, то идем дальше
-        pass
+        # Явное ожидание элемента ошибки
+        error_elements = driver.find_elements(By.CSS_SELECTOR, ".label-error span")
+        for error_element in error_elements:
+            error_text = error_element.text
+            if "Takové místo neznáme" in error_text:
+                print("Error: 'Takové místo neznáme' detected.")
+                clear_fields()
+                return True
+            elif "Zadání není jednoznačné, vyberte prosím z nabízeného seznamu." in error_text:
+                print("Error: 'Zadání není jednoznačné...' detected.")
+                clear_fields()
+                return True
+    except Exception as e:
+        print(f"Error checking for label error: {e}")
     return False
 
 
